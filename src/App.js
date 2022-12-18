@@ -14,6 +14,7 @@ function Query(props) {
         <h2>Query {props.number}</h2>
         <AceEditor
           placeholder="Placeholder Text"
+          width="100%"
           mode="json"
           theme="textmate"
           name="query1"
@@ -33,8 +34,11 @@ function Query(props) {
         />
       </section>
       <section className="results">
-        <h2>Results {props.number}</h2>
-        <pre>
+        <header className="results_header">
+          <h2>Results {props.number}</h2>
+          <span>{props.hits?.total?.value} Items</span>
+        </header>
+        <pre className="results_values">
           <code>{JSON.stringify(props.hits, null, 2)}</code>
         </pre>
       </section>
@@ -44,6 +48,7 @@ function Query(props) {
 
 function App() {
   const [query, setQuery] = useState("");
+  const [searchEndpoint, setSearchEndpoint] = useLocalStorage("searchEndpoint", "");
   const [index, setIndex] = useLocalStorage("index", "demo.demo.1");
   const [query1DSL, setQuery1DSL] = useLocalStorage(
     "query1DSL",
@@ -61,7 +66,7 @@ function App() {
     fetch("http://localhost:3000/search", {
       method: "POST",
       body: JSON.stringify({
-        index: "demo.demo.1",
+        index,
         query: JSON.parse(query1DSL),
       }),
       headers: {
@@ -75,7 +80,7 @@ function App() {
     fetch("http://localhost:3000/search", {
       method: "POST",
       body: JSON.stringify({
-        index: "demo.demo.1",
+        index,
         query: JSON.parse(query2DSL),
       }),
       headers: {
@@ -89,26 +94,42 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <h1>Compare Search Results</h1>
-      <div className="index">
-        <label>Index</label>
-        <input
-          type="text"
-          placeholder="Index..."
-          value={index}
-          onChange={(e) => setIndex(e.target.value)}
-        />
-      </div>
-      <div className="search">
-        <input
-          type="text"
-          placeholder="Search..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <button onClick={handleSubmit}>Search</button>
-      </div>
+    <main className="app">
+      <header className="app_header">
+        <h1>Compare Search Results</h1>
+
+        <details className="configure">
+          <summary>⚙️ Configure</summary>
+          <div className="field">
+            <label>Search Endpoint</label>
+            <input
+              type="text"
+              placeholder="Search Endpoint..."
+              value={searchEndpoint}
+              onChange={(e) => setSearchEndpoint(e.target.value)}
+            />
+          </div>
+          <div className="field">
+            <label>Index</label>
+            <input
+              type="text"
+              placeholder="Index..."
+              value={index}
+              onChange={(e) => setIndex(e.target.value)}
+            />
+          </div>
+        </details>
+
+        <div className="search">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <button onClick={handleSubmit}>Search</button>
+        </div>
+      </header>
       <div className="queries">
         <Query
           queryDSL={query1DSL}
@@ -123,7 +144,7 @@ function App() {
           number={2}
         ></Query>
       </div>
-    </div>
+    </main>
   );
 }
 
