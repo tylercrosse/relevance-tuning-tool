@@ -1,3 +1,16 @@
 .app {
   margin: 30px;
 }
+
+.queries {
+  display: flex;
+}
+
+.query {
+  width: 100%;
+}
+
+.results {
+  max-width: 50vw;
+  overflow: auto;
+}
