@@ -81,6 +81,7 @@ function App() {
     fetch("http://localhost:3000/search", {
       method: "POST",
       body: JSON.stringify({
+        searchEndpoint,
         index,
         query: buildQueryDSL(query2DSL),
       }),
@@ -97,7 +98,7 @@ function App() {
   return (
     <main className="app">
       <header className="app_header">
-        <h1>Compare Search Results</h1>
+        <h1>Relevance Tuning Tool</h1>
 
         <details className="configure">
           <summary>⚙️ Configure</summary>

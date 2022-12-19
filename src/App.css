@@ -75,6 +75,8 @@ button, input[type="submit"], input[type="reset"] {
 
 .results_table {
   max-width: calc(50vw - 40px);
+  height: 380px;
+  margin: 20px 0;
   overflow: auto;
   font-size: 14px;
 }
