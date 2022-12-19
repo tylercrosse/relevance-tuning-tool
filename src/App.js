@@ -1,86 +1,37 @@
 import { useState } from "react";
 import "./App.css";
-import AceEditor from "react-ace";
 import useLocalStorage from "./useLocalStorage";
-import Table from "./Table";
+import QueryComparison from "./QueryComparison";
 
-import "ace-builds/src-noconflict/mode-json";
-import "ace-builds/src-noconflict/theme-textmate";
-import "ace-builds/src-noconflict/ext-language_tools";
-import ColumnSelector from "./ColumnSelector";
-
-function Results(props) {
-  const [selectedColumns, setSelectedColumns] = useLocalStorage(
-    `selectedColumns${props.number}`,
-    []
-  );
-  const columns = selectedColumns.map((col) => ({
-    Header: col.label,
-    accessor: col.value, // accessor is the "key" in the data
-  }));
-  columns.push({
-    Header: "Id",
-    accessor: "_id",
+// Compare the two lists of results to see the relative position of documents in each list. If a document is in both lists, indicate when a document is higher, lower or stayed the same.
+function compareResults(theseResults, otherResults) {
+  const theseResultsMap = {};
+  const otherResultsMap = {};
+  theseResults?.hits?.forEach((hit, index) => {
+    theseResultsMap[hit._id] = index;
   });
-  return (
-    <section className="results">
-      <header className="results_header">
-        <h2>Results {props.number}</h2>
-        <span>{props.hits?.total?.value} Items</span>
-      </header>
-      <ColumnSelector
-        hits={props.hits?.hits || []}
-        selectedColumns={selectedColumns}
-        setSelectedColumns={setSelectedColumns}
-      />
-      <Table columns={columns} data={props.hits?.hits || []} />
-      <h3>Raw Results</h3>
-      <pre className="results_raw">
-        <code>{JSON.stringify(props.hits, null, 2)}</code>
-      </pre>
-    </section>
-  );
-}
-
-function QueryComparison(props) {
-  return (
-    <article className="query">
-      <section>
-        <h2>Query {props.number}</h2>
-        <AceEditor
-          placeholder="Placeholder Text"
-          width="100%"
-          height="320px"
-          mode="json"
-          theme="textmate"
-          name="query1"
-          onChange={props.setQueryDSL}
-          fontSize={14}
-          showPrintMargin={true}
-          showGutter={true}
-          highlightActiveLine={true}
-          value={props.queryDSL}
-          setOptions={{
-            enableBasicAutocompletion: true,
-            enableLiveAutocompletion: false,
-            enableSnippets: false,
-            showLineNumbers: true,
-            tabSize: 2,
-          }}
-        />
-        <p>
-          Use <strong>%searchQuery%</strong> to refer to the text in the search bar.
-        </p>
-      </section>
-      {props.hits ? (
-        <Results number={props.number} hits={props.hits} />
-      ) : (
-        <div className="results_empty">
-          Please submit a Search to see results
-        </div>
-      )}
-    </article>
-  );
+  otherResults?.hits?.forEach((hit, index) => {
+    otherResultsMap[hit._id] = index;
+  });
+  return theseResults?.hits.map((hit) => {
+    let status = "different";
+    let delta = 0;
+    if (otherResultsMap[hit._id] !== undefined) {
+      delta = otherResultsMap[hit._id] - theseResultsMap[hit._id];
+      if (theseResultsMap[hit._id] < otherResultsMap[hit._id]) {
+        status = "higher";
+      } else if (theseResultsMap[hit._id] > otherResultsMap[hit._id]) {
+        status = "lower";
+      } else {
+        status = "same";
+      }
+    }
+    return {
+      ...hit,
+      status,
+      delta
+    }
+  });
 }
 
 function App() {
@@ -115,6 +66,7 @@ function App() {
     fetch("http://localhost:3000/search", {
       method: "POST",
       body: JSON.stringify({
+        searchEndpoint,
         index,
         query: buildQueryDSL(query1DSL),
       }),
@@ -184,13 +136,15 @@ function App() {
         <QueryComparison
           queryDSL={query1DSL}
           setQueryDSL={setQuery1DSL}
-          hits={results1.hits}
+          raw={results1.hits}
+          hits={compareResults(results1.hits, results2.hits)}
           number={1}
         />
         <QueryComparison
           queryDSL={query2DSL}
           setQueryDSL={setQuery2DSL}
-          hits={results2.hits}
+          raw={results2.hits}
+          hits={compareResults(results2.hits, results1.hits)}
           number={2}
         />
       </div>

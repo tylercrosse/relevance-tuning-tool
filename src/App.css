@@ -1,5 +1,5 @@
 .app {
-  
+  font-size: 14px;
 }
 
 .app_header {
@@ -39,7 +39,8 @@ input {
 
 button, input[type="submit"], input[type="reset"] {
 	border: none;
-  padding: 10px;
+  border-radius: 3px;
+  padding: 10px 20px;
   margin-left: 10px;
   background: #3793C5;
   color: white;
