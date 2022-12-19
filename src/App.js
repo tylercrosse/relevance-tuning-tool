@@ -68,6 +68,9 @@ function QueryComparison(props) {
             tabSize: 2,
           }}
         />
+        <p>
+          Use <strong>%searchQuery%</strong> to refer to the text in the search bar.
+        </p>
       </section>
       {props.hits ? (
         <Results number={props.number} hits={props.hits} />
@@ -98,13 +101,22 @@ function App() {
   const [results1, setResults1] = useState({});
   const [results2, setResults2] = useState({});
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSubmit(e);
+    }
+  };
+
+  const buildQueryDSL = (queryDSL) =>
+    JSON.parse(queryDSL.replace(/%searchQuery%/g, query));
+
   const handleSubmit = (e) => {
     e.preventDefault();
     fetch("http://localhost:3000/search", {
       method: "POST",
       body: JSON.stringify({
         index,
-        query: JSON.parse(query1DSL),
+        query: buildQueryDSL(query1DSL),
       }),
       headers: {
         "Content-Type": "application/json",
@@ -118,7 +130,7 @@ function App() {
       method: "POST",
       body: JSON.stringify({
         index,
-        query: JSON.parse(query2DSL),
+        query: buildQueryDSL(query2DSL),
       }),
       headers: {
         "Content-Type": "application/json",
@@ -162,6 +174,7 @@ function App() {
             type="text"
             placeholder="Search..."
             value={query}
+            onKeyDown={handleKeyDown}
             onChange={(e) => setQuery(e.target.value)}
           />
           <button onClick={handleSubmit}>Search</button>

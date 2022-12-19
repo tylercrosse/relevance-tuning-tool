@@ -10,7 +10,6 @@ export default function ColumnSelector(props) {
       label: camel2Title(column),
     };
   });
-  console.log({ hits, options, selectedColumns });
 
   const handleChange = (selectedOptions) => {
     setSelectedColumns(selectedOptions.map((option) => option));
