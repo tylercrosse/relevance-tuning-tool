@@ -86,6 +86,9 @@ th, td {
   padding: 0 5px;
   height: 30px;
   white-space: nowrap;
+  max-width: 340px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 tr:hover {

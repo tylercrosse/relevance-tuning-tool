@@ -30,7 +30,7 @@ export default function Table({ columns, data }) {
                 <td>{i + 1}</td>
                 {row.cells.map((cell) => {
                   return (
-                    <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
+                    <td {...cell.getCellProps()} title={cell.value}>{cell.render("Cell")}</td>
                   );
                 })}
               </tr>
