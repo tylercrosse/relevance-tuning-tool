@@ -2,12 +2,47 @@ import { useState } from "react";
 import "./App.css";
 import AceEditor from "react-ace";
 import useLocalStorage from "./useLocalStorage";
+import Table from "./Table";
 
 import "ace-builds/src-noconflict/mode-json";
 import "ace-builds/src-noconflict/theme-textmate";
 import "ace-builds/src-noconflict/ext-language_tools";
+import ColumnSelector from "./ColumnSelector";
 
-function Query(props) {
+function Results(props) {
+  const [selectedColumns, setSelectedColumns] = useLocalStorage(
+    `selectedColumns${props.number}`,
+    []
+  );
+  const columns = selectedColumns.map((col) => ({
+    Header: col.label,
+    accessor: col.value, // accessor is the "key" in the data
+  }));
+  columns.push({
+    Header: "Id",
+    accessor: "_id",
+  });
+  return (
+    <section className="results">
+      <header className="results_header">
+        <h2>Results {props.number}</h2>
+        <span>{props.hits?.total?.value} Items</span>
+      </header>
+      <ColumnSelector
+        hits={props.hits?.hits || []}
+        selectedColumns={selectedColumns}
+        setSelectedColumns={setSelectedColumns}
+      />
+      <Table columns={columns} data={props.hits?.hits || []} />
+      <h3>Raw Results</h3>
+      <pre className="results_raw">
+        <code>{JSON.stringify(props.hits, null, 2)}</code>
+      </pre>
+    </section>
+  );
+}
+
+function QueryComparison(props) {
   return (
     <article className="query">
       <section>
@@ -15,6 +50,7 @@ function Query(props) {
         <AceEditor
           placeholder="Placeholder Text"
           width="100%"
+          height="320px"
           mode="json"
           theme="textmate"
           name="query1"
@@ -33,22 +69,23 @@ function Query(props) {
           }}
         />
       </section>
-      <section className="results">
-        <header className="results_header">
-          <h2>Results {props.number}</h2>
-          <span>{props.hits?.total?.value} Items</span>
-        </header>
-        <pre className="results_values">
-          <code>{JSON.stringify(props.hits, null, 2)}</code>
-        </pre>
-      </section>
+      {props.hits ? (
+        <Results number={props.number} hits={props.hits} />
+      ) : (
+        <div className="results_empty">
+          Please submit a Search to see results
+        </div>
+      )}
     </article>
   );
 }
 
 function App() {
   const [query, setQuery] = useState("");
-  const [searchEndpoint, setSearchEndpoint] = useLocalStorage("searchEndpoint", "");
+  const [searchEndpoint, setSearchEndpoint] = useLocalStorage(
+    "searchEndpoint",
+    ""
+  );
   const [index, setIndex] = useLocalStorage("index", "demo.demo.1");
   const [query1DSL, setQuery1DSL] = useLocalStorage(
     "query1DSL",
@@ -131,18 +168,18 @@ function App() {
         </div>
       </header>
       <div className="queries">
-        <Query
+        <QueryComparison
           queryDSL={query1DSL}
           setQueryDSL={setQuery1DSL}
           hits={results1.hits}
           number={1}
-        ></Query>
-        <Query
+        />
+        <QueryComparison
           queryDSL={query2DSL}
           setQueryDSL={setQuery2DSL}
           hits={results2.hits}
           number={2}
-        ></Query>
+        />
       </div>
     </main>
   );

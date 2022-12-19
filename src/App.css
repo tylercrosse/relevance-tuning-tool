@@ -3,7 +3,7 @@
 }
 
 .app_header {
-  margin: 30px 30px 0;
+  margin: 30px 40px 0 30px;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -41,7 +41,7 @@ button, input[type="submit"], input[type="reset"] {
 	border: none;
   padding: 10px;
   margin-left: 10px;
-  background: #318CE7;
+  background: #3793C5;
   color: white;
 	font: inherit;
 	cursor: pointer;
@@ -50,12 +50,14 @@ button, input[type="submit"], input[type="reset"] {
 
 .queries {
   display: flex;
+  flex: 0;
   background: #F5F5F5;
+  padding: 0 20px 30px;
 }
 
 .query {
   width: 100%;
-  margin: 0 30px 30px;
+  margin: 0 10px;
 }
 
 
@@ -65,8 +67,39 @@ button, input[type="submit"], input[type="reset"] {
   align-items: center;
 }
 
-.results_values {
-  background: white;
-  max-width: calc(50vw - 60px);
-  overflow: auto;
+.results_empty {
+  margin: 20px 0;
+  text-align: center;
 }
+
+.results_table {
+  max-width: calc(50vw - 40px);
+  overflow: auto;
+  font-size: 14px;
+}
+
+tbody {
+  background: white;
+}
+
+th, td {
+  padding: 0 5px;
+  height: 30px;
+  white-space: nowrap;
+}
+
+tr:hover {
+  background: #DCEEFF;
+}
+
+th {
+  text-align: left;
+}
+
+.results_raw {
+  background: white;
+  max-width: calc(50vw - 40px);
+  overflow: auto;
+  font-size: 14px;
+}
+
