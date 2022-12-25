@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import useLocalStorage from "./useLocalStorage";
+import useLocalStorage from "./utils/useLocalStorage";
 import Table from "./Table";
 import ColumnSelector from "./ColumnSelector";
 import AceEditor from "react-ace";
@@ -48,7 +48,6 @@ export default React.memo(function Results(props) {
     Header: "Id",
     accessor: "_id",
   });
-  console.log("RENDERING RESULTS", props.number)
   return (
     <section className="results">
       <header className="results_header">

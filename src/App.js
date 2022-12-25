@@ -1,24 +1,11 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import "./App.css";
-import useLocalStorage from "./useLocalStorage";
 import QueryComparison from "./QueryComparison";
+import { search } from "./utils/search";
 import compareResults from "./utils/compareResults";
+import useLocalStorage from "./utils/useLocalStorage";
 
 const defaultQuery = '{\n  "query": {\n    \n  }\n}';
-
-function search(searchEndpoint, index, query, queryDSL) {
-  return fetch("http://localhost:3000/search", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      searchEndpoint,
-      index,
-      query: JSON.parse(queryDSL.replace(/%searchQuery%/g, query)),
-    }),
-  }).then((response) => response.json());
-}
 
 function App() {
   const [searchEndpoint, setSearchEndpoint] = useLocalStorage(
@@ -27,8 +14,17 @@ function App() {
   );
   const [index, setIndex] = useLocalStorage("index", "demo.demo.1");
   const [query, setQuery] = useState("");
-  const [query1DSL, setQuery1DSL] = useLocalStorage("query1DSL", defaultQuery);
-  const [query2DSL, setQuery2DSL] = useLocalStorage("query2DSL", defaultQuery);
+  const [queryNames, setQueryNames] = useLocalStorage("queryNames", []);
+  const [query1Option, setQuery1Option] = useLocalStorage("query1Option", {});
+  const [query2Option, setQuery2Option] = useLocalStorage("query2Option", {});
+  const [query1DSL, setQuery1DSL] = useLocalStorage(
+    query1Option.value,
+    defaultQuery
+  );
+  const [query2DSL, setQuery2DSL] = useLocalStorage(
+    query2Option.value,
+    defaultQuery
+  );
   const [results1, setResults1] = useState({});
   const [results2, setResults2] = useState({});
   // cache the comparison results so we don't have to recompute them on every render
@@ -97,14 +93,20 @@ function App() {
       </header>
       <div className="queries">
         <QueryComparison
-          queryDSL={query1DSL}
+          selectedOption={query1Option}
+          setOption={setQuery1Option}
+          queryNames={queryNames}
+          setQueryNames={setQueryNames}
           setQueryDSL={setQuery1DSL}
           raw={results1.hits}
           hits={comparisonResults1}
           number={1}
         />
         <QueryComparison
-          queryDSL={query2DSL}
+          selectedOption={query2Option}
+          setOption={setQuery2Option}
+          queryNames={queryNames}
+          setQueryNames={setQueryNames}
           setQueryDSL={setQuery2DSL}
           raw={results2.hits}
           hits={comparisonResults2}
