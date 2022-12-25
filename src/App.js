@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import "./App.css";
 import useLocalStorage from "./useLocalStorage";
 import QueryComparison from "./QueryComparison";
@@ -29,8 +29,8 @@ function compareResults(theseResults, otherResults) {
     return {
       ...hit,
       status,
-      delta
-    }
+      delta,
+    };
   });
 }
 
@@ -61,9 +61,10 @@ function App() {
   const buildQueryDSL = (queryDSL) =>
     JSON.parse(queryDSL.replace(/%searchQuery%/g, query));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    fetch("http://localhost:3000/search", {
+    console.log("FETCHING");
+    const request1 = fetch("http://localhost:3000/search", {
       method: "POST",
       body: JSON.stringify({
         searchEndpoint,
@@ -73,12 +74,8 @@ function App() {
       headers: {
         "Content-Type": "application/json",
       },
-    }).then((response) => {
-      response.json().then((data) => {
-        setResults1(data);
-      });
     });
-    fetch("http://localhost:3000/search", {
+    const request2 = fetch("http://localhost:3000/search", {
       method: "POST",
       body: JSON.stringify({
         searchEndpoint,
@@ -88,12 +85,27 @@ function App() {
       headers: {
         "Content-Type": "application/json",
       },
-    }).then((response) => {
-      response.json().then((data) => {
-        setResults2(data);
-      });
     });
+    const [resp1, resp2] = await Promise.all([request1, request2]);
+    console.log("RECIEVED");
+    const data1 = await resp1.json();
+    const data2 = await resp2.json();
+    setResults1(data1);
+    setResults2(data2);
   };
+
+  // cache the comparison results so we don't have to recompute them on every render
+  const comparisonResults1 = useMemo(
+    () => compareResults(results1.hits, results2.hits),
+    [results1.hits, results2.hits]
+  );
+  const comparisonResults2 = useMemo(
+    () => {
+      console.log("PROCESSING");
+      return compareResults(results2.hits, results1.hits)
+    },
+    [results1.hits, results2.hits]
+  );
 
   return (
     <main className="app">
@@ -138,14 +150,14 @@ function App() {
           queryDSL={query1DSL}
           setQueryDSL={setQuery1DSL}
           raw={results1.hits}
-          hits={compareResults(results1.hits, results2.hits)}
+          hits={comparisonResults1}
           number={1}
         />
         <QueryComparison
           queryDSL={query2DSL}
           setQueryDSL={setQuery2DSL}
           raw={results2.hits}
-          hits={compareResults(results2.hits, results1.hits)}
+          hits={comparisonResults2}
           number={2}
         />
       </div>

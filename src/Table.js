@@ -20,6 +20,8 @@ export default function Table({ columns, data }) {
       data,
     });
 
+  console.log("RENDERING TABLE");
+
   // Render the UI for your table
   return (
     <div className="results_table">
