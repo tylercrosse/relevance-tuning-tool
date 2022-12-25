@@ -4,79 +4,58 @@ import useLocalStorage from "./useLocalStorage";
 import QueryComparison from "./QueryComparison";
 import compareResults from "./utils/compareResults";
 
+const defaultQuery = '{\n  "query": {\n    \n  }\n}';
+
+function search(searchEndpoint, index, query, queryDSL) {
+  return fetch("http://localhost:3000/search", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      searchEndpoint,
+      index,
+      query: JSON.parse(queryDSL.replace(/%searchQuery%/g, query)),
+    }),
+  }).then((response) => response.json());
+}
+
 function App() {
-  const [query, setQuery] = useState("");
   const [searchEndpoint, setSearchEndpoint] = useLocalStorage(
     "searchEndpoint",
     ""
   );
   const [index, setIndex] = useLocalStorage("index", "demo.demo.1");
-  const [query1DSL, setQuery1DSL] = useLocalStorage(
-    "query1DSL",
-    '{\n  "query": {\n    \n  }\n}'
-  );
-  const [query2DSL, setQuery2DSL] = useLocalStorage(
-    "query2DSL",
-    '{\n  "query": {\n    \n  }\n}'
-  );
+  const [query, setQuery] = useState("");
+  const [query1DSL, setQuery1DSL] = useLocalStorage("query1DSL", defaultQuery);
+  const [query2DSL, setQuery2DSL] = useLocalStorage("query2DSL", defaultQuery);
   const [results1, setResults1] = useState({});
   const [results2, setResults2] = useState({});
+  // cache the comparison results so we don't have to recompute them on every render
+  const comparisonResults1 = useMemo(
+    () => compareResults(results1.hits, results2.hits),
+    [results1.hits, results2.hits]
+  );
+  const comparisonResults2 = useMemo(() => {
+    console.log("PROCESSING");
+    return compareResults(results2.hits, results1.hits);
+  }, [results1.hits, results2.hits]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("FETCHING");
+    const data1 = await search(searchEndpoint, index, query, query1DSL);
+    const data2 = await search(searchEndpoint, index, query, query2DSL);
+    console.log("RECIEVED");
+    setResults1(data1);
+    setResults2(data2);
+  };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       handleSubmit(e);
     }
   };
-
-  function buildQueryDSL(queryDSL) {
-    return JSON.parse(queryDSL.replace(/%searchQuery%/g, query));
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log("FETCHING");
-    const request1 = fetch("http://localhost:3000/search", {
-      method: "POST",
-      body: JSON.stringify({
-        searchEndpoint,
-        index,
-        query: buildQueryDSL(query1DSL),
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const request2 = fetch("http://localhost:3000/search", {
-      method: "POST",
-      body: JSON.stringify({
-        searchEndpoint,
-        index,
-        query: buildQueryDSL(query2DSL),
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const [resp1, resp2] = await Promise.all([request1, request2]);
-    console.log("RECIEVED");
-    const data1 = await resp1.json();
-    const data2 = await resp2.json();
-    setResults1(data1);
-    setResults2(data2);
-  };
-
-  // cache the comparison results so we don't have to recompute them on every render
-  const comparisonResults1 = useMemo(
-    () => compareResults(results1.hits, results2.hits),
-    [results1.hits, results2.hits]
-  );
-  const comparisonResults2 = useMemo(
-    () => {
-      console.log("PROCESSING");
-      return compareResults(results2.hits, results1.hits)
-    },
-    [results1.hits, results2.hits]
-  );
 
   return (
     <main className="app">
