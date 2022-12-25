@@ -104,7 +104,6 @@ thead {
   background: #F5F5F5;
   position: sticky;
   top: 0;
-  z-index: 2;
 }
 
 tr:hover {

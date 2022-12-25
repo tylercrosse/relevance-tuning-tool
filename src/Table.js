@@ -12,6 +12,26 @@ function showStatus({status, delta }) {
   }
 }
 
+function Cell(props) {
+  const { cell } = props;
+
+  // set array and object values to JSON string
+  let value = cell.value;
+  if (Array.isArray(value) || typeof value === "object") {
+    try {
+      value = value?.name || value.map(val => val?.name || val?.label || val).join("; ");
+    } catch {
+      value = JSON.stringify(value);
+    }
+  }
+
+  return (
+    <td {...cell.getCellProps()} title={value}>
+      {value}
+    </td>
+  );
+}
+
 export default function Table({ columns, data }) {
   // Use the state and functions returned from useTable to build your UI
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
@@ -42,13 +62,7 @@ export default function Table({ columns, data }) {
               <tr {...row.getRowProps()}>
                 <td title={data[i].status}>{showStatus(data[i])}</td>
                 <td>{i + 1}</td>
-                {row.cells.map((cell) => {
-                  return (
-                    <td {...cell.getCellProps()} title={cell.value}>
-                      {cell.render("Cell")}
-                    </td>
-                  );
-                })}
+                {row.cells.map((cell) => <Cell cell={cell} />)}
               </tr>
             );
           })}
