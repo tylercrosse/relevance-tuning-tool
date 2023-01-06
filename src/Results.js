@@ -40,6 +40,10 @@ export default React.memo(function Results(props) {
     `selectedColumns${props.number}`,
     []
   );
+  const [areHighlightsOn, setAreHighlightsOn] = useLocalStorage(
+    'areHighlightsOn',
+    false
+  );
   const columns = selectedColumns.map((col) => ({
     Header: col.label,
     accessor: col.value, // accessor is the "key" in the data
@@ -52,6 +56,14 @@ export default React.memo(function Results(props) {
     <section className="results">
       <header className="results_header">
         <h2>{props.raw?.total?.value} Results</h2>
+        <label>
+          <input
+            type="checkbox"
+            checked={areHighlightsOn}
+            onChange={(e) => setAreHighlightsOn(e.target.checked)}
+          />
+          Show Highlights
+        </label>
       </header>
       <Suspense fallback={<div>Loading...</div>}>
         <ColumnSelector
@@ -59,7 +71,11 @@ export default React.memo(function Results(props) {
           selectedColumns={selectedColumns}
           setSelectedColumns={setSelectedColumns}
         />
-        <Table columns={columns} data={props.hits || []} />
+        <Table
+          columns={columns}
+          data={props.hits || []}
+          areHighlightsOn={areHighlightsOn}
+        />
       </Suspense>
       <h3>Raw Results</h3>
       <Suspense fallback={<div>Loading...</div>}>
