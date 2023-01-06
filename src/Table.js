@@ -58,6 +58,28 @@ export default function Table({ columns, data }) {
         <tbody {...getTableBodyProps()}>
           {rows.map((row, i) => {
             prepareRow(row);
+            if (data[i].highlight) {
+              const highlight = Object.values(data[i].highlight)[0].join(" ").replaceAll(/(\\r\\n|\\n|\\r)/gm, " ");
+              return (
+                <>
+                  <tr {...row.getRowProps()} className="highlight">
+                    <td title={data[i].status}>{showStatus(data[i])}</td>
+                    <td>{i + 1}</td>
+                    {row.cells.map((cell) => (
+                      <Cell cell={cell} />
+                    ))}
+                  </tr>
+                  <tr
+                    className="highlight"
+                    colSpan="100%"
+                  >
+                    <td/>
+                    <td/>
+                    <td colSpan="100%" className="highlight" dangerouslySetInnerHTML={{ __html: highlight }}/>
+                  </tr>
+                </>
+              );
+            }
             return (
               <tr {...row.getRowProps()}>
                 <td title={data[i].status}>{showStatus(data[i])}</td>

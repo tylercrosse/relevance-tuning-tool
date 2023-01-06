@@ -121,3 +121,8 @@ th {
   font-size: 14px;
 }
 
+em {
+  background: #DCEEFF;
+  font-weight: bold;
+  padding: 2px;
+}
