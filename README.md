@@ -1,5 +1,8 @@
 # Relevance Tuning Tool
 
+![Screenshot of the top portion of the tool](/public/overview-top.png?raw=true)
+![Screenshot of the bottom portion of the tool](/public/overview-bottom.png?raw=true)
+
 ## Background
 
 This is a tool to compare two different Elasticsearch or OpenSearch queries against each other to evaluate the relevance of the results returned. This project is inspired by the [search comparison tool plugin](https://opensearch.org/docs/2.4/search-plugins/search-relevance/index/), that was recently [released to OpenSearch in 2.4.0](https://opensearch.org/blog/opensearch-2-4-is-available-today/). Here's a [link to the repo](https://github.com/opensearch-project/dashboards-search-relevance) for that tool, which uses the [osd-manaco package](https://github.com/opensearch-project/OpenSearch-Dashboards/tree/main/packages/osd-monaco) from the main [OpenSearch-Dashboards repo](https://github.com/opensearch-project/OpenSearch-Dashboards).
