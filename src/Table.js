@@ -1,6 +1,6 @@
 import { useTable } from "react-table";
 
-function showStatus({status, delta }) {
+function showStatus({ status, delta }) {
   if (status === "same") {
     return null;
   } else if (status === "higher") {
@@ -19,7 +19,9 @@ function Cell(props) {
   let value = cell.value;
   if (Array.isArray(value) || typeof value === "object") {
     try {
-      value = value?.name || value.map(val => val?.name || val?.label || val).join("; ");
+      value =
+        value?.name ||
+        value.map((val) => val?.name || val?.label || val).join("; ");
     } catch {
       value = JSON.stringify(value);
     }
@@ -59,9 +61,12 @@ export default function Table({ columns, data, areHighlightsOn }) {
           {rows.map((row, i) => {
             prepareRow(row);
             if (data[i].highlight && areHighlightsOn) {
-              const highlight = Object.values(data[i].highlight)[0]
-                .join(" ")
-                .replaceAll(/(\\r\\n|\\n|\\r)/gm, " ");
+              const highlight = Object.entries(data[i].highlight).map(
+                ([key, value]) =>
+                  `<strong>${key}</strong>: ${value
+                    .join(" ")
+                    .replaceAll(/(\\r\\n|\\n|\\r)/gm, " ")}`
+              );
               return (
                 <>
                   <tr {...row.getRowProps()} className="highlight">
